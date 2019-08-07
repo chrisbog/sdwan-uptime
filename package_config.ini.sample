@@ -2,3 +2,4 @@
 serveraddress: {IP of vManage}
 username:  {username for vManage}
 password: {password for vManage}
+format: {seconds | anything}

@@ -36,7 +36,7 @@ def initalize_connection(ipaddress,username,password):
 
     return sess
 
-def get_inventory(serveraddress,session):
+def get_inventory(serveraddress,session,type):
 
     """
     This function retrieves the complete hostname data for everything in vManage
@@ -60,22 +60,29 @@ def get_inventory(serveraddress,session):
 
         uptimedate = item['uptime-date']
 
+        version = item['version']
+
         up=time.gmtime(item['uptime-date']/1000)
         currenttime = time.gmtime(time.time())
         difference = time.time() - (uptimedate/1000)
 
-        secs=difference
-        days = secs//86400
-        hours = (secs - days*86400)//3600
-        minutes = (secs - days*86400 - hours*3600)//60
-        seconds = secs - days*86400 - hours*3600 - minutes*60
-        result = ("{} days, ".format(days) if days else "") + \
-        ("{} hours, ".format(hours) if hours else "") + \
-        ("{} minutes, ".format(minutes) if minutes else "") + \
-        ("{0:.2f} seconds".format(seconds) if seconds else "")
+        if type == "seconds":
+            result = str(int(difference))
+        else:
+
+            secs=difference
+            days = secs//86400
+            hours = (secs - days*86400)//3600
+            minutes = (secs - days*86400 - hours*3600)//60
+            seconds = round(secs - days*86400 - hours*3600 - minutes*60)
+            result = ("{} days, ".format(days) if days else "") + \
+            ("{} hours, ".format(hours) if hours else "") + \
+            ("{} minutes, ".format(minutes) if minutes else "") + \
+            ("{0:.0f} seconds".format(seconds) if seconds else "")
 
 
-        print ("{0:20} {1:15}  - {2}".format(item['host-name'],item['system-ip'],result))
+
+        print ("{0:20} {1:15} {2:10} {3}".format(item['host-name'],item['system-ip'],version,result))
 
 
     return(inv)
@@ -93,6 +100,7 @@ try:
     serveraddress = config.get("application","serveraddress")
     username = config.get("application","username")
     password = config.get("application","password")
+    type = config.get("application","format")
 except configparser.Error:
     print ("Cannot Parse package_config.ini")
     exit(-1)
@@ -103,5 +111,5 @@ print ("vManage Username: "+username)
 
 session=initalize_connection(serveraddress,username,password)
 if session != False:
-    inventory=get_inventory(serveraddress,session)
+    inventory=get_inventory(serveraddress,session, type)
 

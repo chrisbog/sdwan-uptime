@@ -11,6 +11,7 @@ The code uses a file called the package_config.ini to house the information abou
 * **serveraddress** - Represents the ip address of the vManage server
 * **username** -  username of the login credentials on the vManage server
 * **password** - password of the login credentials on the vManage server
+* **format** - format of the output.   If the value is *seconds* then it will display the uptime date in seconds format.   If it is anything else, it will display in text notation.
 
 ### python
 This demo example is based on Python 3.7 and was tested successfully under that version.
