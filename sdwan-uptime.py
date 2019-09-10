@@ -50,39 +50,44 @@ def get_inventory(serveraddress,session,type):
     response = session.request("GET", url, verify=False,timeout=10)
     json_string = response.json()
 
+    #print (json_string)
+
 
     # Initialize the inventory data dictionary
     inv={}
     # Store each item in the dictionary with the key of the "system-ip"
     for item in json_string['data']:
+        if item['device-model'] not in ["vsmart","vmanage","vbond"] :
     #   print (item['local-system-ip']+"   "+item['host-name'])
-        inv[item['system-ip']]=item['host-name']
+            inv[item['system-ip']]=item['host-name']
 
-        uptimedate = item['uptime-date']
+            if "uptime-date" in item.keys():
+                uptimedate = item['uptime-date']
 
-        version = item['version']
+                version = item['version']
 
-        up=time.gmtime(item['uptime-date']/1000)
-        currenttime = time.gmtime(time.time())
-        difference = time.time() - (uptimedate/1000)
+                up=time.gmtime(item['uptime-date']/1000)
+                currenttime = time.gmtime(time.time())
+                difference = time.time() - (uptimedate/1000)
 
-        if type == "seconds":
-            result = str(int(difference))
-        else:
+                if type == "seconds":
+                   result = str(int(difference))
+                else:
 
-            secs=difference
-            days = secs//86400
-            hours = (secs - days*86400)//3600
-            minutes = (secs - days*86400 - hours*3600)//60
-            seconds = round(secs - days*86400 - hours*3600 - minutes*60)
-            result = ("{} days, ".format(days) if days else "") + \
-            ("{} hours, ".format(hours) if hours else "") + \
-            ("{} minutes, ".format(minutes) if minutes else "") + \
-            ("{0:.0f} seconds".format(seconds) if seconds else "")
+                    secs=difference
+                    days = secs//86400
+                    hours = (secs - days*86400)//3600
+                    minutes = (secs - days*86400 - hours*3600)//60
+                    seconds = round(secs - days*86400 - hours*3600 - minutes*60)
+                    result = ("{} days, ".format(days) if days else "") + \
+                    ("{} hours, ".format(hours) if hours else "") + \
+                    ("{} minutes, ".format(minutes) if minutes else "") + \
+                    ("{0:.0f} seconds".format(seconds) if seconds else "")
 
 
 
-        print ("{0:20} {1:15} {2:10} {3}".format(item['host-name'],item['system-ip'],version,result))
+                print ("{0:20} {1:15} {2:10} {3:10} {4:15} {5:15} {6:15}".format(item['host-name'],item['system-ip'],version,result,item['reachability'],item['status'],item['validity']))
+
 
 
     return(inv)
